@@ -63,34 +63,35 @@ class Gigachat
     // Приватный метод для получения изображения по его идентификатору
     private static function get_image($token, $image)
     {
-        $curl = curl_init();
+        $curl = curl_init();// Инициализация нового сеанса cURL
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://gigachat.devices.sberbank.ru/api/v1/files/' . $image . '/content',
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => array(
-                'Accept: application/jpg',
-                'Authorization: Bearer ' . $token
+        curl_setopt_array($curl, array(// Установка опций для сеанса cURL
+            CURLOPT_URL => 'https://gigachat.devices.sberbank.ru/api/v1/files/' . $image . '/content',// URL, на который будет отправлен запрос
+            CURLOPT_SSL_VERIFYPEER => 0,// Отключение проверки SSL
+            CURLOPT_RETURNTRANSFER => true,// Возврат результата вместо вывода его в браузер
+            CURLOPT_ENCODING => '',// Кодировка, которую следует использовать в выводе
+            CURLOPT_MAXREDIRS => 10,// Максимальное количество HTTP-перенаправлений, которое следует следовать
+            CURLOPT_TIMEOUT => 0,// Максимальное время выполнения cURL-функций в секундах
+            CURLOPT_FOLLOWLOCATION => true,// Следование любому заголовку "Location: ", отправленному сервером в своем ответе
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,// Указание версии HTTP для использования в запросе
+            CURLOPT_CUSTOMREQUEST => 'GET',// Установка HTTP-метода в GET
+            CURLOPT_HTTPHEADER => array(// Установка HTTP-заголовков для запроса
+                'Accept: application/jpg',// Принимаемый тип контента
+                'Authorization: Bearer ' . $token// Токен авторизации
             ),
         ));
 
-        $result = curl_exec($curl);
+        $result = curl_exec($curl);// Выполнение cURL-запроса и сохранение результата в переменную
 
-        if ($result) {
-            file_put_contents($_SERVER['DOCUMENT_ROOT'].dirname($_SERVER['PHP_SELF']) . $image . ".jpg", $result);
-            $img = "img/" . $image . ".jpg";
+        if ($result) {// Если результат не пустой
+            // Запись результата в файл
+            file_put_contents(dirname($_SERVER['SCRIPT_FILENAME']) . "/img/" . $image . ".jpg", $result);//фактический путь
+            $img = "img/" . $image . ".jpg";// путь в ответе
         } else {
-            $img = false;
+            $img = false;// Если результат пустой, установка переменной изображения в false
         }
 
-        return $img;
+        return $img;// Возврат имени файла изображения или false
     }
 
     // Приватный метод для генерации уникального идентификатора в формате UUIDv4
@@ -191,10 +192,10 @@ class Gigachat
                     preg_match_all('/<img[^>]*?src=\"(.*)\"/iU', $answer, $imageSearch);
                     if (isset($imageSearch[1][0])) {
                         // Удаляем теги изображений из ответа и получаем ссылку на изображение
-                        $answer = preg_replace('/<img(?:\\s[^<>]*)?>/i', '', $answer);
+                        $answer = preg_replace('/<img[^>]*>/i', '', $answer);
                         $image = self::get_image($tok, $imageSearch[1][0]);
                         // Формируем ссылку на изображение
-                        $answer .= 'https://' . $_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']) . '/' . $image;
+                        $answer .= '<img src="https://' . $_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']) . '/' . $image . '">';
                     }
                 }
             }
