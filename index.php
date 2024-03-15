@@ -28,5 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div><?php if(isset($answer)) echo 'Ответ('.date("h:i:s m.d.Y").'): ' . $answer; ?></div>
 </body>
 <footer>
+    <hr>
 </footer>
 </html>
